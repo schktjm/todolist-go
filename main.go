@@ -31,8 +31,8 @@ func todoHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		for k, v := range m {
-			fmt.Fprintf(w, "id: %s, value: %v\n", k, v)
+		for _, todo := range m {
+			fmt.Fprintf(w, "{id: %v,value: %v, done: %v}\n", todo.id, todo.value, todo.done)
 		}
 	case http.MethodPost:
 		body := r.Body
@@ -40,17 +40,16 @@ func todoHandler(w http.ResponseWriter, r *http.Request) {
 
 		buf := new(bytes.Buffer)
 		io.Copy(buf, body)
+		todo := makeTodoStruct(buf.String(), false)
 
-		todo := makeTodoStruct(buf.String())
 		m[todo.id] = todo
-
-		fmt.Fprintf(w, "id: %v\n", todo.id)
+		fmt.Fprintf(w, "todos: %v\n", m)
 	}
 }
 
-func makeTodoStruct(val string) Todo {
+func makeTodoStruct(val string, done bool) Todo {
 	key := makeRandom()
-	return Todo{id: key, value: val, done: false}
+	return Todo{id: key, value: val, done: done}
 
 }
 
